@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Votação Importante 👀</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: #1e293b;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 30px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .sim {
+      background: #ef4444;
+    }
+
+    .nao {
+      background: #22c55e;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .resultado {
+      margin-top: 30px;
+    }
+
+    .bar {
+      height: 20px;
+      border-radius: 10px;
+      margin: 10px 0;
+      background: #334155;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      text-align: right;
+      padding-right: 5px;
+      font-size: 12px;
+    }
+
+    .sim-fill {
+      background: #ef4444;
+    }
+
+    .nao-fill {
+      background: #22c55e;
+    }
+  </style>
+
+</head>
+<body>
+
+<div class="container">
+
+  <h1>Você acha o Ladea feio?</h1>
+
+<button class="sim" onclick="votar('sim')">Sim</button> <button class="nao" onclick="votar('nao')">Não</button>
+
+  <div class="resultado">
+    <h2>Resultado</h2>
+
+```
+<div>Sim</div>
+<div class="bar">
+  <div id="simBar" class="fill sim-fill" style="width:0%">0%</div>
+</div>
+
+<div>Não</div>
+<div class="bar">
+  <div id="naoBar" class="fill nao-fill" style="width:0%">0%</div>
+</div>
+
+<p id="total"></p>
+```
+
+  </div>
+
+</div>
+
+<!-- Firebase -->
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+  apiKey: "AIzaSyBf4cvwOZ1qc3__t-RkbvZTEFep8rI8h2k",
+  authDomain: "juninho-pe-de-valsa.firebaseapp.com",
+  databaseURL: "https://juninho-pe-de-valsa-default-rtdb.firebaseio.com",
+  projectId: "juninho-pe-de-valsa",
+  storageBucket: "juninho-pe-de-valsa.firebasestorage.app",
+  messagingSenderId: "1071986988251",
+  appId: "1:1071986988251:web:73a2cbc21478d6669828fe"
+  };
+
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  function votar(opcao) {
+    const jaVotou = localStorage.getItem("votou");
+
+    if (jaVotou) {
+      alert("Você já votou 😏");
+      return;
+    }
+
+    const ref = db.ref("votos/" + opcao);
+    ref.transaction((valor) => (valor || 0) + 1);
+
+    localStorage.setItem("votou", "sim");
+  }
+
+  db.ref("votos").on("value", (snapshot) => {
+    const dados = snapshot.val() || {};
+    const sim = dados.sim || 0;
+    const nao = dados.nao || 0;
+    const total = sim + nao;
+
+    let simPerc = total ? ((sim / total) * 100).toFixed(1) : 0;
+    let naoPerc = total ? ((nao / total) * 100).toFixed(1) : 0;
+
+    document.getElementById("simBar").style.width = simPerc + "%";
+    document.getElementById("simBar").innerText = simPerc + "%";
+
+    document.getElementById("naoBar").style.width = naoPerc + "%";
+    document.getElementById("naoBar").innerText = naoPerc + "%";
+
+    document.getElementById("total").innerText =
+      `Total de votos: ${total}`;
+  });
+</script>
+
+</body>
+</html>
